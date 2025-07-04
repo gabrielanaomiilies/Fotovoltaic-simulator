@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simulator Fotovoltaic</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #e0f2f1, #a5d6a7);
+  color: #2e7d32;
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  padding: 1.5rem;
+  animation: fadeInBody 1.5s ease forwards;
+}
+
+@keyframes fadeInBody {
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+h2, h3 {
+  color: #1b5e20;
+  text-shadow: 1px 1px 3px #a5d6a7;
+}
+
+form {
+  background-color: #c8e6c9cc;
+  border: 1px solid #81c784;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(50, 105, 65, 0.2);
+  transition: box-shadow 0.3s ease;
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+form:hover {
+  box-shadow: 0 10px 20px rgba(30, 80, 40, 0.35);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+label {
+  display: block;
+  margin: 0.7rem 0 0.3rem;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+input[type="number"],
+select {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 2px solid #a5d6a7;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  outline-offset: 2px;
+}
+
+input[type="number"]:focus,
+select:focus {
+  border-color: #388e3c;
+  box-shadow: 0 0 8px #66bb6aaa;
+  outline: none;
+}
+
+button {
+  background-color: #66bb6a;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 5px 10px #66bb6a80;
+}
+
+button:hover {
+  background-color: #43a047;
+  transform: scale(1.05);
+  box-shadow: 0 8px 15px #43a047cc;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 8px 15px #43a047cc; }
+  50% { box-shadow: 0 12px 20px #66bb6aee; }
+}
+
+#comparatie {
+  background-color: #dcedc8cc;
+  padding: 1.5rem;
+  border: 1px solid #aed581;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(130, 180, 50, 0.15);
+  animation: fadeInUp 1s ease forwards;
+}
+
+#weather-data {
+  font-style: italic;
+  color: #2e7d32cc;
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 600;
+  animation: fadeIn 2s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0;}
+  to { opacity: 1;}
+}
+
+/* Recomandări animate cu culori vibrante */
+#recomandari li {
+  opacity: 0;
+  transform: translateX(-20px);
+  animation-fill-mode: forwards;
+  animation-duration: 0.7s;
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  margin: 0.5rem 0;
+  font-weight: 700;
+  color: #1b5e20;
+  text-shadow: 1px 1px 2px #a5d6a7;
+}
+
+#profil-orar-container {
+  position: fixed;
+  top: 20px;
+  right: 1000px;
+  width: 300px;
+  background-color: #f9f9f9;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+@media (max-width: 768px) {
+  #profil-orar-container {
+    position: static !important;
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
+#vremea {
+  position: fixed;
+  top: 50px;
+  left: 1000px;
+  width: 300px;
+  background-color: transparent;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+@media (max-width: 768px) {
+  #vremea {
+    position: static !important;
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
+
+
+
+#recomandari li:nth-child(1) { animation-name: slideIn; animation-delay: 0.2s; }
+#recomandari li:nth-child(2) { animation-name: slideIn; animation-delay: 0.5s; }
+#recomandari li:nth-child(3) { animation-name: slideIn; animation-delay: 0.8s; }
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+#chart-container {
+  margin-top: 2rem;
+  animation: fadeInUp 1.5s ease forwards;
+}
+
+  </style>
+</head>
+<body>
+  <main>
+    <section id="simulator">
+      <h2>Simulează consum vs producție</h2>
+
+      <form id="consum-form" onsubmit="return false;">
+        <h3>1. Introdu consumul lunar (ultimele 3 luni)</h3>
+        <label>Luna 1 (kWh): <input type="number" id="luna1" min="0" /></label>
+        <label>Luna 2 (kWh): <input type="number" id="luna2" min="0" /></label>
+        <label>Luna 3 (kWh): <input type="number" id="luna3" min="0" /></label>
+        <button type="button" onclick="calculeazaConsumAnual()">Calculează consum anual estimat</button>
+        <p id="consum-total"></p>
+        
+      </form>
+
+      <form id="productie-form" onsubmit="return false;">
+        <h3>2. Introdu detalii sistem solar</h3>
+        <label>Suprafață acoperiș (m²): <input id="suprafata" type="number" min="1" /></label>
+        <label>Unghiul de înclinare (°): <input id="inclinatie" type="number" min="5" max="60" value="45" /></label>
+	  <label>Lungimea Panoului (m): <input id="lungimePanou" type="number" min="1" max="60" value="1.7" /></label>
+		<label>Lățimea Panoului (m): <input id="latimePanou" type="number" min="1" max="60" value="1" /></label>
+		 <label>Vechimea panoului:
+          <select id="vechime">
+            <option value="0">Nou</option>
+            <option value="1">1 an</option>
+  <option value="2">2 ani</option>
+  <option value="3">3 ani</option>
+  <option value="5">5 ani</option>
+  <option value="10">10 ani</option>
+  <option value="15">15 ani</option>
+  <option value="20">20 ani</option>
+          </select>
+        </label>
+        <label>Locație:
+          <select id="oras"></select>
+        </label>
+        <label>Orientare acoperiș:
+          <select id="orientare">
+            <option value="1">Sud (ideal)</option>
+            <option value="0.95">Sud-Est / Sud-Vest</option>
+            <option value="0.85">Est / Vest</option>
+            <option value="0.6">Nord</option>
+          </select>
+        </label>
+        <label>Umbrire:
+          <select id="umbrire">
+            <option value="1">Fără umbrire</option>
+            <option value="0.9">Umbrire mică</option>
+            <option value="0.75" selected>Umbrire medie</option>
+            <option value="0.5">Umbrire mare</option>
+          </select>
+        </label>
+        <button type="button" onclick="calculeazaTot()">Calculează producția și compară</button>
+<div id="explicatii-container" style="
+  border: 1px solid #ccc;
+  background: transparent;
+  padding: 15px;
+  margin-top: 15px;
+  max-height: 250px;
+  overflow-y: auto;
+  color: transparent;
+  white-space: pre-line;
+  font-family: sans-serif;
+">
+		<p id="pas1-explicatie" style="white-space: pre-line; bold; color:#2e7d32;"></p>
+        <p id="pas2-explicatie" style="white-space: pre-line; color:#2e7d32;"></p>
+        <p id="pas3-explicatie" style="white-space: pre-line; color:#2e7d32;"></p>
+        <p id="pas4-explicatie" style="white-space: pre-line; color:#2e7d32;"></p>
+        <p id="pas5-explicatie" style="white-space: pre-line; color:#2e7d32;"></p>
+        <p id="pas6-explicatie" style="white-space: pre-line; color:#2e7d32;"></p>
+        <p id="pas7-explicatie" style="white-space: pre-line; color:#2e7d32;"></p>
+		<p id="pas8-explicatie" style="white-space: pre-line; color:#2e7d32;"></p>
+		</div>
+      </form>
+	  
+ <label>Ce faci cu surplusul de energie?</label>
+ <label>
+        <select id="strategie">
+          <option value="retea">Injectare în rețea (vânzare)</option>
+          <option value="baterii">Stocare în baterii</option>
+        </select>
+      </label>
+	  
+      <div id="comparatie">
+        <h3>3. Compară și recomandări</h3>
+        <p id="rezultat-comparatie"></p>
+        <p id="recuperare"></p>
+        <ul id="recomandari"></ul>
+        <div id="chart-container">
+          <canvas id="comparatieChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+	  
+  <div id="profil-orar-container">
+  <h3>🕐 Profil orar de utilizare</h3>
+  <label for="interval-start">De la ora:
+  <select id="interval-start">
+  <option value="7">07:00</option>
+  <option value="8">08:00</option>
+  <option value="9">09:00</option>
+  <option value="10">10:00</option>
+  <option value="11">11:00</option>
+  <option value="12">12:00</option>
+  <option value="13">13:00</option>
+  <option value="14">14:00</option>
+  <option value="15">15:00</option>
+  <option value="16">16:00</option>
+  <option value="17">17:00</option>
+  <option value="18">18:00</option>
+  <option value="19">19:00</option>
+  <option value="20">20:00</option>
+        </select>
+		</label>
+  <label for="interval-end">până la ora:
+  <select id="interval-end">
+  <option value="7">07:00</option>
+  <option value="8">08:00</option>
+  <option value="9">09:00</option>
+  <option value="10">10:00</option>
+  <option value="11">11:00</option>
+  <option value="12">12:00</option>
+  <option value="13">13:00</option>
+  <option value="14">14:00</option>
+  <option value="15">15:00</option>
+  <option value="16">16:00</option>
+  <option value="17">17:00</option>
+  <option value="18">18:00</option>
+  <option value="19">19:00</option>
+  <option value="20">20:00</option>
+ </select>
+  </label>
+  
+<p id="estimareProducție" style="font-weight:bold; margin-bottom: 5px;"></p>
+<canvas id="graficOrar" height="200"></canvas>
+<p id="recomandareOrara" style="margin-top: 5px; font-style: italic; color: #555;"></p>
+
+  <canvas id="graficOrar" height="200"></canvas>
+  <p id="recomandareOrara"></p>
+  
+</div>
+      <div id="vremea">
+        <p id="weather-data">[Vremea va apărea aici]</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const radiatie = {
+      "Alba": 1200, "Arad": 1250, "Argeș": 1150, "Bacău": 1150, "Bihor": 1250,
+      "Bistrița-Năsăud": 1150, "Botoșani": 1100, "Brașov": 1100, "Brăila": 1250,
+      "Buzău": 1200, "Caraș-Severin": 1250, "Călărași": 1300, "Cluj": 1100, "Constanța": 1300,
+      "Covasna": 1100, "Dâmbovița": 1150, "Dolj": 1300, "Galați": 1250, "Giurgiu": 1300,
+      "Gorj": 1200, "Harghita": 1050, "Hunedoara": 1150, "Ialomița": 1300, "Iași": 1150,
+      "Ilfov": 1250, "Maramureș": 1100, "Mehedinți": 1300, "Mureș": 1100, "Neamț": 1150,
+      "Olt": 1300, "Prahova": 1200, "Satu Mare": 1200, "Sălaj": 1150, "Sibiu": 1150,
+      "Suceava": 1100, "Teleorman": 1300, "Timiș": 1250, "Tulcea": 1300, "Vaslui": 1150,
+      "Vâlcea": 1200, "Vrancea": 1200, "București": 1250
+    };
+
+    const apiKey = 'a4c5ef974245c523e7969c9799bc9780'; // cheia ta OpenWeatherMap
+
+    window.onload = () => {
+      const orasSelect = document.getElementById('oras');
+      for (const judet in radiatie) {
+        const opt = document.createElement('option');
+        opt.value = judet;
+        opt.text = judet;
+        orasSelect.appendChild(opt);
+      }
+      orasSelect.value = 'București';
+
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async position => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const judetGeoloc = await reverseGeocode(lat, lon);
+            if (judetGeoloc) {
+              const gasit = Object.keys(radiatie).find(j => j.toLowerCase() === judetGeoloc.toLowerCase());
+              if (gasit) {
+                orasSelect.value = gasit;
+                getWeather(gasit);
+              }
+            }
+          },
+          () => { getWeather('București'); }
+        );
+      } else {
+        getWeather('București');
+      }
+	  document.getElementById("strategie").addEventListener("change", calculeazaTot);
+	  document.getElementById("interval-start").addEventListener("change", calculeazaTot);
+document.getElementById("interval-end").addEventListener("change", calculeazaTot);
+
+
+    };
+
+    async function reverseGeocode(lat, lon) {
+      try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&accept-language=ro`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.address && data.address.county) {
+          return data.address.county.replace('Județul ', '').trim();
+        }
+      } catch {
+        return null;
+      }
+    }
+
+    async function getWeather(judet) {
+      try {
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${judet},RO&appid=${apiKey}&units=metric&lang=ro`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.weather && data.weather.length > 0) {
+          const w = data.weather[0].description;
+          const t = data.main.temp;
+          const h = data.main.humidity;
+          const v = data.wind.speed;
+          document.getElementById('weather-data').innerText =
+            `Vreme în ${judet}: ${w}, ${t}°C, umiditate: ${h}%, vânt: ${v} m/s`;
+        }
+      } catch {
+        document.getElementById('weather-data').innerText = `[Datele meteo nu sunt disponibile]`;
+      }
+    }
+
+    document.getElementById('oras').addEventListener('change', e => {
+      getWeather(e.target.value);
+    });
+
+const imaginiVreme = {
+   Clear: {
+    zi: "img/soare.jpg",
+    noapte: "img/luna.jpg"
+  },
+  Clouds: {
+    zi: "img/nori.jpg",
+    noapte: "img/nori_noapte.jpg"
+  },
+  Rain: {
+    zi: "img/ploaie1.jpg",
+    noapte: "img/ploaie1.jpg"
+  },
+  Drizzle: {
+    zi: "img/ploaie2.jpg",
+    noapte: "img/ploaie2.jpg.jpg"
+  },
+  Thunderstorm: {
+    zi: "img/ploaie3.jpg",
+    noapte: "img/ploaie3.jpg"
+  },
+  Snow: {
+    zi: "img/zapada.jpg",
+    noapte: "img/zapada_noapte.jpg"
+  },
+  Mist: {
+    zi: "img/ceata.jpg",
+    noapte: "img/ceata_noapte.jpg"
+  }
+};
+
+
+function esteZi(data) {
+  const dt = data.dt; // momentul curent (unix)
+  const sunrise = data.sys.sunrise;
+  const sunset = data.sys.sunset;
+  return dt >= sunrise && dt < sunset;
+}
+
+async function actualizeazaFundal(apiKey, judet) {
+  try {
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${judet},RO&appid=${apiKey}&units=metric&lang=ro`;
+    const raspuns = await fetch(url);
+    const data = await raspuns.json();
+
+    const conditie = data.weather[0].main;
+    const zi = esteZi(data);
+
+    const imgObj = imaginiVreme[conditie] || imaginiVreme["Clear"];
+    const img = zi ? imgObj.zi : imgObj.noapte;
+
+    // schimbă fundalul întregii pagini
+    document.body.style.backgroundImage = `url('${img}')`;
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+
+    // update date vreme în pagină
+    document.getElementById('weather-data').innerText =
+      `Vreme în ${judet}: ${data.weather[0].description}, ${data.main.temp}°C, umiditate: ${data.main.humidity}%, vânt: ${data.wind.speed} m/s`;
+    
+  } catch (e) {
+    console.error("Eroare la preluarea vremii:", e);
+    document.getElementById('weather-data').innerText = `[Datele meteo nu sunt disponibile]`;
+  }
+}
+
+actualizeazaFundal('a4c5ef974245c523e7969c9799bc9780', 'Bucharest');
+
+
+
+
+    let consumAnualGlobal = 0;
+
+    function calculeazaConsumAnual() {
+      const l1 = parseFloat(document.getElementById('luna1').value) || 0;
+      const l2 = parseFloat(document.getElementById('luna2').value) || 0;
+      const l3 = parseFloat(document.getElementById('luna3').value) || 0;
+
+      if (l1 + l2 + l3 === 0) {
+        alert("Introduceți consumul pentru cel puțin o lună.");
+        return;
+      }
+
+      const medie = (l1 + l2 + l3) / 3;
+      const anual = medie * 12;
+      consumAnualGlobal = anual;
+
+      document.getElementById('consum-total').innerText =
+        `Consum lunar mediu: ${medie.toFixed(1)} kWh\n` +
+        `Consum anual estimat: ${anual.toFixed(0)} kWh`;
+    }
+
+    function calculeazaTot() {
+      if (!consumAnualGlobal) {
+        alert("Calculează mai întâi consumul anual din secțiunea 1.");
+        return;
+      }
+//document.getElementById("strategie").addEventListener("change", calculeazaTot);
+
+      const sup = parseFloat(document.getElementById('suprafata').value) || 0;
+      if (sup <= 0) {
+        alert("Introdu o suprafață validă.");
+        return;
+      }
+
+      const inclinatie = parseFloat(document.getElementById('inclinatie').value) || 45;
+      const oras = document.getElementById('oras').value;
+      const orientare = parseFloat(document.getElementById('orientare').value);
+      const umbrire = parseFloat(document.getElementById('umbrire').value);
+
+      const rad = radiatie[oras] || 1150;
+      const vechime = parseInt(document.getElementById('vechime').value);
+      let rand = 0.85 * Math.pow(0.995, vechime);
+      const latimePanou = parseFloat(document.getElementById('latimePanou').value) ||1;
+      const lungimePanou = parseFloat(document.getElementById('lungimePanou').value) || 1.7;
+
+      // 2. Calcule înălțime panou și distanță între rânduri (m)
+      const h = lungimePanou * Math.sin(inclinatie * Math.PI / 180);
+      const d = h / Math.tan(inclinatie * Math.PI / 180);
+
+      document.getElementById('pas1-explicatie').innerText =
+        `Înălțimea panoului h = ${h.toFixed(2)} m\n` ;
+		
+	  document.getElementById('pas2-explicatie').innerText =
+        `Distanța minimă între rânduri d = ${d.toFixed(2)} m`;
+
+      // 3. Suprafața per panou incluzând distanța
+      const spatiuPerPanou = lungimePanou + d;
+      document.getElementById('pas3-explicatie').innerText =
+        `Suprafața necesară per panou = ${spatiuPerPanou.toFixed(2)} m`;
+
+      // 4. Numărul panouri
+      const nrPanouri = Math.floor(sup / spatiuPerPanou);
+      document.getElementById('pas4-explicatie').innerText =
+        `Numărul de panouri =  ${nrPanouri}`;
+
+      // 5. Puterea instalată totală
+      const P_panou = 0.4; // kW per panou
+      const putereInstalata = nrPanouri * P_panou;
+      document.getElementById('pas5-explicatie').innerText =
+        `Puterea instalată totală  = ${putereInstalata.toFixed(2)} kWp`;
+
+      // 6. Producția anuală estimată
+      const productie = putereInstalata * rad * rand * orientare * umbrire;
+      document.getElementById('pas6-explicatie').innerText =
+        `Producția anuală estimată = ${productie.toFixed(0)} kWh`;
+
+      // 7. Acoperirea consumului
+      const acoperire = (productie / consumAnualGlobal) * 100;
+	  
+document.getElementById('pas7-explicatie').innerText =
+  `Acoperirea consumului = ${acoperire.toFixed(1)}%`;
+  
+  let mesaj = "";
+  if (acoperire < 100) {
+  mesaj = '<li class="list-group-item">Producția ta acoperă parțial consumul anual. Va trebui să suplimentezi cu energie din rețea.</li>';
+} else if (acoperire === 100) {
+  mesaj = '<li class="list-group-item">Producția este perfect echilibrată cu consumul tău anual.</li>';
+} else {
+  mesaj = '<li class="list-group-item">Producția depășește consumul. Energia în exces poate fi injectată în rețea sau stocată, în funcție de sistemul tău.</li>';
+}
+
+const listaHTML = `<ul class="list-group">${mesaj}</ul>`;
+
+// Aici pun lista în elementul HTML care afișează recomandările
+document.getElementById('recomandari').innerHTML = listaHTML;
+
+document.getElementById('pas8-explicatie').innerHTML = mesaj;
+
+      const strategie = document.getElementById("strategie").value;
+      let castigAnual = 0;
+      let explicatieStrategie = "";
+
+      if (strategie === "retea") {
+        const surplus = Math.max(0, productie - consumAnualGlobal);
+        const pretKWh = 0.5; // RON/kWh
+        castigAnual = surplus * pretKWh;
+        explicatieStrategie = `Strategie: Vânzare surplus în rețea\nSurplus estimat: ${surplus.toFixed(0)} kWh\nCâștig anual estimat: ${castigAnual.toFixed(0)} RON`;
+      } else if (strategie === "baterii") {
+        const surplus = Math.max(0, productie - consumAnualGlobal);
+        const eficienta = 0.85;
+        const energieUtila = surplus * eficienta;
+        explicatieStrategie = `Strategie: Stocare surplus în baterii\nSurplus estimat: ${surplus.toFixed(0)} kWh\nEnergie utilă după stocare (~85%): ${energieUtila.toFixed(0)} kWh`;
+      }
+
+      // Afișare
+      document.getElementById("rezultat-comparatie").innerText =
+        `Producția sistemului acoperă aproximativ ${acoperire.toFixed(0)}% din consumul anual.` +
+        `\n${explicatieStrategie}`;
+
+      // Estimare cost sistem & recuperare
+      const costSistem = putereInstalata * 900; // EUR
+      const economieAnuala = Math.min(productie, consumAnualGlobal) * 0.8; // presupunem că 1 kWh economisit = 0.8 RON
+      const totalCastig = economieAnuala + castigAnual;
+      const aniRecuperare = totalCastig > 0 ? costSistem / totalCastig : Infinity;
+
+      document.getElementById("recuperare").innerText =
+        `Cost estimativ sistem: ${costSistem.toFixed(0)} EUR\n` +
+        `Economii + venit anual: ${totalCastig.toFixed(0)} RON\n` +
+        `Timp estimativ de recuperare: ${aniRecuperare === Infinity ? 'nedefinit' : aniRecuperare.toFixed(1) + " ani"}`;
+
+
+		
+      const recomandari = document.getElementById('recomandari');
+      recomandari.innerHTML = '';
+      if ((productie - consumAnualGlobal) >= 0) {
+        recomandari.innerHTML += '<li>Felicitări! Sistemul este adecvat.</li>';
+        recomandari.innerHTML += '<li>Poți reduce factura la energie.</li>';
+        recomandari.innerHTML += '<li>Încearcă să optimizezi consumul în timpul zilei.</li>';
+      } else {
+        recomandari.innerHTML += '<li>Poate trebuie un sistem mai mare.</li>';
+        recomandari.innerHTML += '<li>Ia în calcul acumulatoare sau consum pe timp de zi.</li>';
+        recomandari.innerHTML += '<li>Verifică dacă acoperișul permite extinderea.</li>';
+      }
+	  
+calculeazaUtilizareOrara(putereInstalata, rad, rand, orientare, umbrire, productie, consumAnualGlobal);
+      // Grafic
+      const ctx = document.getElementById('comparatieChart').getContext('2d');
+      if (window.myChart) window.myChart.destroy();
+
+      window.myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Consum anual (kWh)', 'Producție anuală (kWh)', 'Surplus estimat (kWh)'],
+          datasets: [{
+            label: 'kWh',
+            data: [consumAnualGlobal.toFixed(0), productie.toFixed(0), (productie - consumAnualGlobal).toFixed(1)],
+            backgroundColor: ['#66bb6a', '#a5d6a7', '#fff59d' ]
+          }]
+        },
+        options: {
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+	
+	function calculeazaUtilizareOrara(putereInstalata, rad, rand, orientare, umbrire) {
+  const start = parseInt(document.getElementById('interval-start').value);
+  const end = parseInt(document.getElementById('interval-end').value);
+
+  if (isNaN(start) || isNaN(end) || start >= end) {
+    alert("Interval invalid. Asigură-te că ora de început e mai mică decât ora de sfârșit.");
+    return;
+  }
+
+  const profilOrar = {
+    7: 0, 8: 0.05, 9: 0.1, 10: 0.15,
+    11: 0.2, 12: 0.2, 13: 0.15,
+    14: 0.1, 15: 0.05, 16: 0.03, 17: 0.02,
+    18: 0, 19: 0, 20: 0
+  };
+
+  const productieZilnica = putereInstalata * rad * rand * orientare * umbrire / 365;
+
+  let productieInInterval = 0;
+  const productieOre = [];
+
+  for (let ora = 7; ora <= 20; ora++) {
+    const productieOra = productieZilnica * (profilOrar[ora] || 0);
+    productieOre.push({ ora, productieOra });
+    if (ora >= start && ora <= end) {
+      productieInInterval += productieOra;
+    }
+  }
+
+ document.getElementById('estimareProducție').innerText =
+  `Estimare producție între ${start}:00 și ${end}:00: ${productieInInterval.toFixed(2)} kWh/zi.`;
+
+  // Caută intervalul de 3 ore cu producția maximă (fereastră glisantă)
+  let maxSum = 0;
+  let startMax = 7;
+  const windowSize = 3;
+  for (let i = 0; i <= productieOre.length - windowSize; i++) {
+    let sum = 0;
+    for (let j = 0; j < windowSize; j++) {
+      sum += productieOre[i + j].productieOra;  // <-- aici era problema
+    }
+    if (sum > maxSum) {
+      maxSum = sum;
+      startMax = productieOre[i].ora;  // mai sigur așa ca să nu depindem de 7
+    }
+  }
+  const endMax = startMax + windowSize - 1;
+
+  document.getElementById('recomandareOrara').innerText =
+    `Recomandare: Programează aparatele pentru utilizare directă în cele două ore optime, între ${startMax}:00 și ${endMax}:00, când producția este maximă (${maxSum.toFixed(2)} kWh/zi).`;  
+  
+  const ctx2 = document.getElementById('graficOrar').getContext('2d');
+  if (window.graficOrarChart) window.graficOrarChart.destroy();
+  window.graficOrarChart = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: ['8', '9', '10', '11', '12', '13', '14', '15', '16', '17'],
+      datasets: [{
+        label: 'Producție orară (kWh)',
+        data: productieOre.map(x => x.productieOra.toFixed(2)),
+        backgroundColor: '#81c784'
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+}
+  </script>
+</body>
+</html>
